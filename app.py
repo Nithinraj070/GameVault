@@ -271,8 +271,6 @@ def init_db():
     """)
     if not column_exists(cursor, "games", "rating"):
         cursor.execute("ALTER TABLE games ADD COLUMN rating INTEGER DEFAULT 0")
-    if not column_exists(cursor, "users", "is_admin"):
-        cursor.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS user_platforms (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
