@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+{% block title %}GameVault - Stats{% endblock %}
+
+{% block head %}
+<style>
+  .stats-header{
+    display:flex;
+    align-items:end;
+    justify-content:space-between;
+    gap:16px;
+    margin: 6px 0 18px;
+  }
+  .stats-title{ margin:0; font-size:22px; letter-spacing:0.4px; }
+  .stats-sub{ margin:6px 0 0; color: var(--muted); }
+
+  .stats-grid{
+    display:grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  @keyframes floaty {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .stat-card{
+    grid-column: span 3;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.10);
+
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.18));
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+
+    padding: 14px;
+    position: relative;
+    overflow:hidden;
+
+    animation: floaty 6s ease-in-out infinite;
+    transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+  }
+
+  .stat-card::before{
+    content:"";
+    position:absolute;
+    inset:-1px;
+    background: radial-gradient(600px 220px at 15% 10%, rgba(255,59,59,0.10), transparent 55%);
+    opacity: 0.9;
+    pointer-events:none;
+  }
+
+  .stat-card:nth-child(2){ animation-delay: .2s; }
+  .stat-card:nth-child(3){ animation-delay: .4s; }
+  .stat-card:nth-child(4){ animation-delay: .6s; }
+
+  .stat-card::after{
+    content:"";
+    position:absolute;
+    left:14px; right:14px; bottom:-18px;
+    height:36px;
+    background: radial-gradient(closest-side, rgba(255, 59, 59, 0.38), transparent 70%);
+    filter: blur(10px);
+    opacity: 0.15; /* visible even without hover */
+    transition: opacity 0.22s ease;
+    pointer-events:none;
+  }
+
+  .stat-card:hover{
+    border-color: rgba(255,59,59,0.24);
+    transform: translateY(-14px);
+    animation-play-state: paused;
+    box-shadow: 0 26px 70px rgba(0,0,0,0.55);
+  }
+  .stat-card:hover::after{ opacity: 1; }
+
+  .stat-k{
+    position: relative;
+    color: rgba(234,234,234,0.70);
+    font-weight: 900;
+    font-size: 12px;
+    letter-spacing: 0.25px;
+    text-transform: uppercase;
+  }
+  .stat-v{
+    position: relative;
+    margin-top: 8px;
+    font-weight: 950;
+    font-size: 26px;
+    letter-spacing: 0.3px;
+  }
+  .stat-hint{
+    position: relative;
+    margin-top: 8px;
+    color: rgba(234,234,234,0.72);
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .wide{
+    grid-column: span 6;
+    animation: none;
+  }
+
+  /* glass panels too */
+  .panel{
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(0,0,0,0.18));
+    box-shadow: var(--shadow-card);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    padding: 16px;
+  }
+
+  .panel h3{
+    margin:0 0 12px;
+    font-size: 14px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.90);
+  }
+
+  .rows{ display:grid; gap:10px; }
+
+  .row{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .row .k{ color: rgba(234,234,234,0.70); font-weight: 850; font-size: 13px; }
+  .row .v{ color: rgba(255,255,255,0.92); font-weight: 950; font-size: 13px; text-align:right; }
+
+  .ring-mini{
+    --p: 0;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background:
+      conic-gradient(
+        rgba(255,59,59,0.95) calc(var(--p) * 1%),
+        rgba(255,255,255,0.08) 0
+      );
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow: 0 0 28px rgba(255,59,59,0.12);
+    margin: 10px 0 6px;
+    position: relative;
+  }
+  .ring-mini::after{
+    content:"";
+    position:absolute;
+    inset: 8px;
+    border-radius: 50%;
+    background: rgba(17,17,17,0.92);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .ring-mini .center{
+    position:relative;
+    z-index:1;
+    font-weight: 950;
+    font-size: 18px;
+  }
+
+  .platforms{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .pill{
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.04);
+    font-weight: 900;
+    font-size: 13px;
+    color: rgba(255,255,255,0.88);
+    backdrop-filter: blur(10px);
+  }
+
+  @media (max-width: 1050px){
+    .stat-card{ grid-column: span 6; }
+    .wide{ grid-column: span 12; }
+  }
+  @media (max-width: 650px){
+    .stat-card{ grid-column: span 12; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .stat-card{ animation: none; }
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+  <div class="stats-header">
+    <div>
+      <h1 class="stats-title">Stats</h1>
+      <p class="stats-sub">Your overall progress across platforms (Steam later will plug in here).</p>
+    </div>
+  </div>
+
+  {% if total_games == 0 %}
+    <div class="empty">
+      <h2>No stats yet.</h2>
+      <p>Add a few games first, then your analytics will appear here.</p>
+    </div>
+  {% else %}
+    <section class="stats-grid">
+
+      <div class="stat-card">
+        <div class="stat-k">Total Games</div>
+        <div class="stat-v counter" data-target="{{ total_games }}">0</div>
+        <div class="stat-hint">Size of your vault</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-k">Total Playtime</div>
+        <div class="stat-v">{{ "%.1f"|format(total_playtime) }} hrs</div>
+        <div class="stat-hint">Across all games</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-k">Achievements</div>
+        <div class="stat-v">{{ achievements_done_sum }} / {{ achievements_total_sum }}</div>
+
+        <div class="sleep-progress" style="--p: {{ achievement_pct }};">
+          <div class="fill"></div>
+        </div>
+        <div class="stat-hint">{{ achievement_pct }}% achieved</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-k">Avg Completion</div>
+        <div class="ring-mini" style="--p: {{ avg_completion }};">
+          <div class="center">{{ avg_completion }}%</div>
+        </div>
+        <div class="stat-hint">Average across your library</div>
+      </div>
+
+      <div class="panel wide">
+        <h3>Highlights</h3>
+        <div class="rows">
+          <div class="row">
+            <div class="k">Most Played</div>
+            <div class="v">
+              {% if most_played %}
+                {{ most_played[1] }} ({{ "%.1f"|format(most_played[2]) }} hrs)
+              {% else %}
+                —
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="k">Recently Added</div>
+            <div class="v">
+              {% if recently_added %}
+                {{ recently_added[1] }} ({{ recently_added[2] }})
+              {% else %}
+                —
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="k">Recently Played</div>
+            <div class="v">
+              {% if recently_played %}
+                {{ recently_played[1] }} ({{ recently_played[2] }})
+              {% else %}
+                —
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel wide">
+        <h3>Platforms</h3>
+        <div class="platforms">
+          {% for p in platforms %}
+            <div class="pill">{{ p[0] }} · {{ p[1] }}</div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </section>
+    <div style="margin-top:40px; max-width:600px; margin-left:auto; margin-right:auto;">
+      <canvas id="platformChart"></canvas>
+    </div>
+    <script>
+    const ctx = document.getElementById('platformChart');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: [{% for p in platforms %}"{{ p[0] }}",{% endfor %}],
+        datasets: [{
+          label: "Games",
+          data: [{% for p in platforms %}{{ p[1] }},{% endfor %}],
+          backgroundColor: "#ff3b3b",
+          borderRadius: 8
+        }]
+      },
+      options:{
+        responsive:true,
+        plugins:{
+          legend:{ display:false }
+        },
+        scales:{
+          x:{
+            ticks:{ color:"white" }
+          },
+          y:{
+            ticks:{ color:"white" },
+            grid:{ color:"rgba(255,255,255,0.1)" }
+          }
+        }
+      }
+    });
+    </script> 
+  {% endif %}
+<script>
+document.querySelectorAll(".counter").forEach(counter=>{
+  const target = parseFloat(counter.dataset.target);
+  let current = 0;
+  const increment = target / 40;
+
+  const interval = setInterval(()=>{
+    current += increment;
+    if(current >= target){
+      counter.textContent = target;
+      clearInterval(interval);
+    } else {
+      counter.textContent = current.toFixed(1);
+    }
+  },20);
+});
+</script>
+{% endblock %}

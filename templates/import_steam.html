@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}GameVault - Import Steam{% endblock %}
+
+{% block content %}
+  <div style="max-width: 780px; margin: 0 auto; padding-top: 20px;">
+    <div class="login-card" style="width: 100%; text-align: left;">
+      <h2 style="margin-top:0;">Import from Steam</h2>
+
+      <p style="color: var(--muted); margin-top: 8px;">
+        Preview → Import → Fix Posters → Enrich → Achievements (completion%).
+      </p>
+
+      <div style="margin: 14px 0; display:grid; gap:8px;">
+        <div><strong>API Key:</strong> {{ "✅ Set" if api_key_set else "❌ Not set" }}</div>
+        <div><strong>Connected SteamID64:</strong> {{ steam_id if steam_id else "❌ Not connected" }}</div>
+      </div>
+
+      {% if error %}
+        <p style="margin: 10px 0; color: var(--primary); font-weight: 900;">
+          {{ error }}
+        </p>
+      {% endif %}
+
+      {% if info %}
+        <p style="margin: 10px 0; color: rgba(255,255,255,0.92); font-weight: 900;">
+          {{ info }}
+        </p>
+      {% endif %}
+
+      <div style="margin-top: 12px; display:flex; gap:10px; flex-wrap: wrap;">
+        <form method="POST" style="margin:0;">
+          <input type="hidden" name="action" value="preview">
+          <button type="submit">Fetch Preview</button>
+        </form>
+
+        <form method="POST" style="margin:0;">
+          <input type="hidden" name="action" value="import">
+          <button type="submit">Import to Library</button>
+        </form>
+
+        <form method="POST" style="margin:0;">
+          <input type="hidden" name="action" value="fix_posters">
+          <button type="submit">Fix Posters (HQ)</button>
+        </form>
+
+        <form method="POST" style="margin:0;">
+          <input type="hidden" name="action" value="enrich">
+          <button type="submit">Enrich Dev/Genre</button>
+        </form>
+
+        <form method="POST" style="margin:0;">
+          <input type="hidden" name="action" value="achievements">
+          <button type="submit">Update Achievements</button>
+        </form>
+      </div>
+
+      {% if found_count is not none %}
+        <div style="margin-top: 16px;">
+          <p style="font-weight: 900;">Found {{ found_count }} games.</p>
+
+          {% if preview_names %}
+            <p style="color: var(--muted); margin-top: 6px;">First few:</p>
+            <ul style="margin-top: 6px; line-height: 1.7;">
+              {% for n in preview_names %}
+                <li>{{ n }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      <div style="margin-top: 14px; display:flex; gap:10px; flex-wrap: wrap;">
+        <a href="/connect/steam"><button type="button">Connect Steam</button></a>
+        <a href="/library"><button type="button">Back to Library</button></a>
+      </div>
+
+      <p style="color: var(--muted); margin-top: 14px; font-size: 13px;">
+        Note: Some games have no achievements or Steam may block if profile/game details are private.
+        Click "Update Achievements" multiple times to process more games.
+      </p>
+    </div>
+  </div>
+{% endblock %}

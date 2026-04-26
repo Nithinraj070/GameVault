@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ game[2] }} - GameVault</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=14">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}?v=2">
+
+  <style>
+    .detail-wrap{
+      padding: 26px 40px 70px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* =========================
+       HERO (Top section)
+       ========================= */
+    .hero {
+      position: relative;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.25);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.04) inset, 0 22px 80px rgba(0,0,0,0.45);
+      backdrop-filter: blur(12px) saturate(140%);
+      -webkit-backdrop-filter: blur(12px) saturate(140%);
+    }
+
+    .hero-bg{
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      filter: blur(18px);
+      transform: scale(1.08);
+      opacity: 0.22;
+    }
+
+    .hero-overlay{
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(700px 320px at 20% 25%, rgba(255,59,59,0.16), transparent 60%),
+        linear-gradient(180deg, rgba(0,0,0,0.36), rgba(0,0,0,0.82));
+    }
+
+    .hero-content{
+      position: relative;
+      padding: 22px;
+      display: grid;
+      grid-template-columns: 220px 1fr 320px;
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .cover{
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: #0b0b0b;
+      aspect-ratio: 3 / 4;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.62);
+    }
+
+    .cover img{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display:block;
+      opacity: 0.96;
+    }
+
+    .title-row{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .game-name{
+      margin: 0;
+      font-size: 34px;
+      letter-spacing: 0.3px;
+      line-height: 1.1;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing: 0.4px;
+      color: rgba(255,255,255,0.92);
+      background: rgba(255,59,59,0.12);
+      border: 1px solid rgba(255,59,59,0.24);
+      box-shadow: 0 0 20px rgba(255,59,59,0.10);
+      white-space: nowrap;
+    }
+
+    .submeta{
+      margin-top: 10px;
+      color: rgba(234,234,234,0.72);
+      font-weight: 700;
+      line-height: 1.6;
+    }
+    .submeta strong{
+      color: rgba(234,234,234,0.92);
+      font-weight: 900;
+    }
+
+    .quick-stats{
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .qcard{
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.20);
+      padding: 12px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+    }
+
+    .q-label{
+      color: rgba(234,234,234,0.70);
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: 0.2px;
+    }
+    .q-value{
+      margin-top: 6px;
+      font-weight: 950;
+      font-size: 18px;
+      letter-spacing: 0.2px;
+    }
+
+    /* Progress bar */
+    .sleep-progress{
+      --p: 0;
+      margin-top: 14px;
+      height: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          rgba(255,255,255,0.10) 0px,
+          rgba(255,255,255,0.10) 10px,
+          rgba(255,255,255,0.03) 10px,
+          rgba(255,255,255,0.03) 16px
+        );
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset;
+    }
+    .sleep-progress .fill{
+      width: calc(var(--p) * 1%);
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(255,59,59,0.35), rgba(255,59,59,0.95));
+      box-shadow: 0 0 18px rgba(255,59,59,0.32);
+    }
+
+    .actions{ margin-top: 20px; display:flex; gap: 14px; flex-wrap: wrap; }
+    .actions a button{
+      min-width:170px;
+    }
+    /* =========================
+       RING CARD (Enhanced)
+       ========================= */
+    @keyframes ringPulse {
+      0%, 100% { transform: translateY(0); filter: drop-shadow(0 0 0 rgba(255,59,59,0)); }
+      50% { transform: translateY(-4px); filter: drop-shadow(0 0 20px rgba(255,59,59,0.20)); }
+    }
+
+    .ring-card{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.20);
+      padding: 16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 18px 60px rgba(0,0,0,0.45);
+    }
+
+    .ring{
+      --p: 0;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      position: relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+
+      background:
+        conic-gradient(
+          rgba(255,59,59,0.98) calc(var(--p) * 1%),
+          rgba(255,255,255,0.10) 0
+        );
+
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.06) inset,
+        0 0 35px rgba(255,59,59,0.14);
+
+      animation: ringPulse 4.8s ease-in-out infinite;
+      will-change: transform, filter;
+    }
+
+    .ring::before{
+      content:"";
+      position:absolute;
+      inset:-18px;
+      border-radius: 50%;
+      background: radial-gradient(closest-side, rgba(255,59,59,0.22), transparent 70%);
+      filter: blur(10px);
+      opacity: 0.9;
+      pointer-events:none;
+    }
+
+    .ring::after{
+      content:"";
+      position:absolute;
+      inset: 12px;
+      border-radius: 50%;
+      background: rgba(17,17,17,0.92);
+      border: 1px solid rgba(255,255,255,0.10);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.03) inset;
+    }
+
+    .ring-center{ position: relative; z-index: 1; text-align:center; }
+    .ring-pct{ font-size: 30px; font-weight: 950; letter-spacing: 0.4px; }
+    .ring-label{ margin-top: 6px; color: rgba(234,234,234,0.70); font-weight: 800; font-size: 12px; letter-spacing: 0.2px; }
+
+    /* =========================
+       DETAILS + PERFORMANCE PANELS
+       ========================= */
+    .detail-grid{
+      margin-top: 18px;
+      display:grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 16px;
+    }
+
+    @keyframes floatPanel { 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-12px);} }
+    .panel-float{
+      position:relative;
+      border-radius:16px;
+      animation: floatPanel 7s ease-in-out infinite;
+      will-change: transform;
+      overflow: visible;
+      transition: filter .2s ease;
+    }
+    .panel-float:nth-child(1){ animation-delay:0s; }
+    .panel-float:nth-child(2){ animation-delay:.35s; }
+
+    .panel-float:hover{
+      animation-play-state: paused;
+      transform: translateY(-18px);
+      filter:
+        drop-shadow(0 18px 40px rgba(0,0,0,0.55))
+        drop-shadow(0 0 22px rgba(255,59,59,0.12));
+    }
+
+    .panel{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(0,0,0,0.20);
+      padding: 16px;
+      backdrop-filter: blur(14px) saturate(150%);
+      -webkit-backdrop-filter: blur(14px) saturate(150%);
+      box-shadow: 0 14px 32px rgba(0,0,0,0.55);
+      overflow:hidden;
+      position: relative;
+    }
+
+    .panel h3{
+      margin: 0 0 12px;
+      font-size: 14px;
+      letter-spacing: 0.3px;
+      color: rgba(255,255,255,0.92);
+      text-transform: uppercase;
+    }
+
+    .rows{ display:grid; gap: 12px; }
+
+    @keyframes floatRow { 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-7px);} }
+    .row{
+      position: relative;
+      display:flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      animation: floatRow 6s ease-in-out infinite;
+      will-change: transform;
+      overflow:hidden;
+      transition: transform .22s ease, border-color .22s ease, background-color .22s ease, box-shadow .22s ease;
+    }
+
+    .row::after{
+      content:"";
+      position:absolute;
+      left: 14px;
+      right: 14px;
+      bottom: -18px;
+      height: 36px;
+      background: radial-gradient(closest-side, rgba(255,59,59,0.38), transparent 72%);
+      filter: blur(12px);
+      opacity: 0;
+      transition: opacity .22s ease;
+      pointer-events:none;
+    }
+
+    .rows .row:nth-child(1){ animation-delay:0s; }
+    .rows .row:nth-child(2){ animation-delay:.2s; }
+    .rows .row:nth-child(3){ animation-delay:.4s; }
+    .rows .row:nth-child(4){ animation-delay:.6s; }
+
+    .row:hover{
+      animation-play-state: paused;
+      transform: translateY(-12px);
+      border-color: rgba(255,59,59,0.24);
+      background: rgba(255,255,255,0.07);
+      box-shadow: 0 18px 55px rgba(0,0,0,0.45);
+    }
+    .row:hover::after{ opacity: 1; }
+
+    .row .k{ color: rgba(234,234,234,0.72); font-weight: 900; font-size: 13px; letter-spacing: 0.2px; }
+    .row .v{ color: rgba(255,255,255,0.92); font-weight: 950; font-size: 13px; text-align: right; }
+
+    /* =========================
+       ACHIEVEMENTS
+       ========================= */
+    .ach-wrap{
+      margin-top: 18px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.18);
+      backdrop-filter: blur(14px) saturate(150%);
+      -webkit-backdrop-filter: blur(14px) saturate(150%);
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .ach-head{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .ach-title{
+      margin:0;
+      font-size: 14px;
+      letter-spacing: 0.35px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.90);
+      font-weight: 950;
+    }
+
+    .ach-meta{
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 13px;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    .ach-controls{
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .ach-search{
+      width: 100%;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 12px;
+      background: rgba(10,10,10,0.70);
+      color: var(--text);
+      transition: border-color .2s ease, box-shadow .2s ease;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .ach-search:focus{
+      outline: none;
+      border-color: rgba(255,59,59,0.35);
+      box-shadow: 0 0 0 3px rgba(255,59,59,0.14), 0 0 18px rgba(255,59,59,0.18);
+    }
+
+    .ach-tabs{
+      display:flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .ach-grid{
+      margin-top: 12px;
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    .ach-card{
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
+      padding: 12px;
+      display:flex;
+      gap: 12px;
+      align-items:flex-start;
+      position: relative;
+      overflow:hidden;
+    }
+
+    .ach-card.unlocked{
+      border-color: rgba(255,59,59,0.18);
+      background: rgba(255,59,59,0.06);
+    }
+
+    .ach-icon{
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      flex: 0 0 auto;
+      border: 1px solid rgba(255,255,255,0.10);
+      overflow:hidden;
+      background: rgba(0,0,0,0.25);
+    }
+
+    .ach-icon img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+    .ach-name{
+      margin:0;
+      font-weight: 950;
+      font-size: 14px;
+      letter-spacing: 0.2px;
+      color: rgba(255,255,255,0.92);
+    }
+
+    .ach-desc{
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .ach-state{
+      margin-top: 8px;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.25px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .ach-note{
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 980px){
+      .hero-content{ grid-template-columns: 180px 1fr; }
+      .ring-card{ grid-column: 1 / -1; }
+      .detail-grid{ grid-template-columns: 1fr; }
+      .ach-controls{ grid-template-columns: 1fr; }
+      .ach-tabs{ justify-content: flex-start; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .panel-float, .row, .ring{ animation: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="brand">
+        <span class="brand-mark"></span>
+        <span class="brand-name">GameVault</span>
+      </div>
+
+      {% if session.get("user") %}
+        <div class="welcome-text">Welcome, <span class="welcome-user">{{ session.get("user") }}</span></div>
+      {% endif %}
+    </div>
+
+    <nav class="topbar-right">
+      <a class="nav-link" href="/library">Library</a>
+      <a class="nav-link" href="/add-game">Add Game</a>
+      <a class="nav-link" href="/stats">Stats</a>
+      <a class="nav-link nav-danger" href="/logout">Logout</a>
+    </nav>
+  </header>
+
+  {% set completion = (game[9] if game[9] is not none else 0) %}
+  {% set total = (game[8] if game[8] is not none else 0) %}
+  {% set done = (game[7] if game[7] is not none else 0) %}
+  {% set playtime = (game[6] if game[6] is not none else 0) %}
+  {% set est = (game[10] if game[10] is not none else 0) %}
+  {% set remaining = (est - playtime) %}
+  {% if remaining < 0 %}{% set remaining = 0 %}{% endif %}
+  {% set cover = (game[11] if game[11] else 'https://via.placeholder.com/600x800?text=No+Cover') %}
+
+  <div class="detail-wrap">
+    <section class="hero">
+      <div class="hero-bg" style="background-image: url('{{ cover }}');"></div>
+      <div class="hero-overlay"></div>
+
+      <div class="hero-content">
+        <div class="cover">
+          <img src="{{ cover }}" alt="{{ game[2] }}"
+               onerror="this.src='https://via.placeholder.com/600x800?text=No+Cover'">
+        </div>
+
+        <div>
+          <div class="title-row">
+            <h1 class="game-name">{{ game[2] }}</h1>
+            <span class="badge">{{ game[3] }}</span>
+          </div>
+
+          <div class="submeta">
+            <div><strong>Developer:</strong> {{ game[4] or "Unknown" }}</div>
+            <div><strong>Genre:</strong> {{ game[5] or "Unknown" }}</div>
+          </div>
+
+          <div class="quick-stats">
+            <div class="qcard">
+              <div class="q-label">Playtime</div>
+              <div class="q-value">{{ "%.1f"|format(playtime) }} hrs</div>
+            </div>
+
+            <div class="qcard">
+              <div class="q-label">Achievements</div>
+              <div class="q-value">{{ done }} / {{ total }}</div>
+            </div>
+
+            <div class="qcard">
+              <div class="q-label">Est. to Complete</div>
+              <div class="q-value">{{ "%.1f"|format(est) }} hrs</div>
+            </div>
+          </div>
+
+          <div class="sleep-progress" style="--p: {{ completion }};">
+            <div class="fill"></div>
+          </div>
+
+          <div class="submeta" style="margin-top:10px;">
+            Completion: <strong>{{ completion }}%</strong> · Remaining (est): <strong>{{ "%.1f"|format(remaining) }} hrs</strong>
+          </div>
+
+        </div>
+
+        <div class="ring-card">
+          <div class="ring" style="--p: {{ completion }};">
+            <div class="ring-center">
+              <div class="ring-pct">{{ completion }}%</div>
+              <div class="ring-label">Completion</div>
+            </div>
+          </div>
+          <div class="submeta" style="text-align:center; margin-top:0;">
+            Achievement completion
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="notes-section">
+      <h3 style="margin-bottom:10px;">Notes</h3>
+
+      <form method="POST" action="/update-notes/{{ game[0] }}">
+       <textarea name="notes" rows="4"
+          style="width:100%; padding:12px; border-radius:12px; background:#111; color:white; border:1px solid rgba(255,255,255,0.1);">{{ game[14] or '' }}</textarea>
+
+       <button type="submit" class="gv-btn-primary" style="margin-top:10px;">
+         Save Notes
+        </button>
+      </form>
+    </section>
+    <section class="rating-section" style="margin-top:30px;">
+      <h3 style="margin-bottom:10px;">Your Rating</h3>
+      <form method="POST" action="/update-rating/{{ game[0] }}">
+        <div class="stars">
+          {% for i in range(1,6) %}
+          <button type="submit"
+                  name="rating"
+                  value="{{ i }}"
+                  class="star-btn {% if game[13]|int >= i %}active{% endif %}">
+            ★
+          </button>
+          {% endfor %}
+        </div>
+      </form>
+    </section>
+    <div class="detail-actions">
+      <a href="/library">
+        <button class="btn-ghost" type="button">
+          ← Back to Library
+        </button>
+      </a>
+      <a href="/edit-game/{{ game[0] }}">
+        <button class="gv-btn-primary" type="button">
+          Edit Game 
+        </button>
+      </a>
+      <form method="POST"
+            action="/delete-game/{{ game[0] }}"
+            onsubmit="return confirm('Are you sure you want to delete this game? This cannot be undone.');"
+            style="display:inline;">
+        <button type="submit" class="gv-btn-danger">
+          Delete Game
+        </button>
+    </div>
+
+    <section class="detail-grid">
+      <div class="panel-float">
+        <div class="panel">
+          <h3>Details</h3>
+          <div class="rows">
+            <div class="row"><div class="k">Platform Source</div><div class="v">{{ game[3] }}</div></div>
+            <div class="row"><div class="k">Game ID</div><div class="v">#{{ game[0] }}</div></div>
+            <div class="row"><div class="k">Date Added</div><div class="v">{{ game[12] or "—" }}</div></div>
+            <div class="row"><div class="k">Last Played</div><div class="v">{{ game[13] or "—" }}</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-float">
+        <div class="panel">
+          <h3>Performance</h3>
+          <div class="rows">
+            <div class="row"><div class="k">Playtime</div><div class="v">{{ "%.1f"|format(playtime) }} hrs</div></div>
+            <div class="row"><div class="k">Completion</div><div class="v">{{ completion }}%</div></div>
+            <div class="row"><div class="k">Achievements</div><div class="v">{{ done }} / {{ total }}</div></div>
+            <div class="row"><div class="k">Estimated Hours</div><div class="v">{{ "%.1f"|format(est) }} hrs</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ach-wrap">
+      <div class="ach-head">
+        <div>
+          <h3 class="ach-title">Achievements</h3>
+          <div id="ach_meta" class="ach-meta">Click “Load Achievements” to fetch icons + locked/unlocked.</div>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button id="ach_load_btn" type="button" class="gv-btn-primary">Load</button>
+          <button id="ach_refresh_btn" type="button" class="btn-ghost" disabled>Refresh</button>
+        </div>
+      </div>
+
+      <div class="ach-controls">
+        <input id="ach_search" class="ach-search" type="text" placeholder="Search achievements... (name or description)" disabled>
+        <div class="ach-tabs">
+          <button class="ach-tab active" data-filter="all" disabled type="button">All</button>
+          <button class="ach-tab" data-filter="unlocked" disabled type="button">Unlocked</button>
+          <button class="ach-tab" data-filter="locked" disabled type="button">Locked</button>
+        </div>
+      </div>
+
+      <div id="ach_error" class="ach-note" style="display:none; color: var(--primary); font-weight: 900;"></div>
+      <div id="ach_grid" class="ach-grid"></div>
+      <div id="ach_note" class="ach-note"></div>
+    </section>
+  </div>
+
+  <script>
+    const btn = document.getElementById("ach_load_btn");
+    const refreshBtn = document.getElementById("ach_refresh_btn");
+
+    const meta = document.getElementById("ach_meta");
+    const grid = document.getElementById("ach_grid");
+    const errBox = document.getElementById("ach_error");
+    const note = document.getElementById("ach_note");
+
+    const searchInput = document.getElementById("ach_search");
+    const tabs = Array.from(document.querySelectorAll(".ach-tab"));
+
+    let allAchievements = [];
+    let activeFilter = "all";
+    let lastBaseMeta = "";
+
+    function unixToText(ts){
+      if(!ts || ts === 0) return "";
+      const d = new Date(ts * 1000);
+      return d.toLocaleString();
+    }
+
+    function ageText(cachedAt){
+      if(!cachedAt) return "";
+      const now = Date.now() / 1000;
+      const diff = Math.max(0, Math.floor(now - cachedAt));
+      const mins = Math.floor(diff / 60);
+      if(mins < 1) return "just now";
+      if(mins < 60) return `${mins} min ago`;
+      const hrs = Math.floor(mins / 60);
+      return `${hrs} hr ago`;
+    }
+
+    function setControlsEnabled(enabled){
+      searchInput.disabled = !enabled;
+      tabs.forEach(t => t.disabled = !enabled);
+      refreshBtn.disabled = !enabled;
+    }
+
+    function setActiveTab(filter){
+      activeFilter = filter;
+      tabs.forEach(t => t.classList.toggle("active", t.dataset.filter === filter));
+    }
+
+    function matchesFilter(a){
+      if(activeFilter === "all") return true;
+      if(activeFilter === "unlocked") return !!a.achieved;
+      if(activeFilter === "locked") return !a.achieved;
+      return true;
+    }
+
+    function matchesSearch(a, q){
+      if(!q) return true;
+      const hay = ((a.title || "") + " " + (a.description || "")).toLowerCase();
+      return hay.includes(q);
+    }
+
+    function renderAchievements(){
+      const q = (searchInput.value || "").trim().toLowerCase();
+      const filtered = allAchievements.filter(a => matchesFilter(a) && matchesSearch(a, q));
+
+      grid.innerHTML = "";
+
+      if(allAchievements.length > 0){
+        meta.textContent = lastBaseMeta + ` • Showing ${filtered.length}/${allAchievements.length}`;
+      }
+
+      if(filtered.length === 0){
+        note.textContent = "No achievements match your filter/search.";
+        return;
+      }
+
+      note.textContent = "";
+
+      for(const a of filtered){
+        const card = document.createElement("div");
+        card.className = "ach-card" + (a.achieved ? " unlocked" : "");
+        const iconUrl = a.achieved ? a.icon : a.icongray;
+
+        card.innerHTML = `
+          <div class="ach-icon">
+            <img loading="lazy" src="${iconUrl || ''}" alt="">
+          </div>
+          <div style="min-width:0;">
+            <h4 class="ach-name">${a.title || "Unknown"}</h4>
+            <p class="ach-desc">${a.description || (a.hidden ? "Hidden achievement" : "")}</p>
+            <div class="ach-state">
+              ${a.achieved ? ("Unlocked • " + unixToText(a.unlocktime)) : "Locked"}
+            </div>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      }
+    }
+
+    async function loadAchievements(refresh=false){
+      btn.disabled = true;
+      refreshBtn.disabled = true;
+      searchInput.disabled = true;
+      tabs.forEach(t => t.disabled = true);
+
+      errBox.style.display = "none";
+      errBox.textContent = "";
+      grid.innerHTML = "";
+      note.textContent = "Loading...";
+      meta.textContent = refresh ? "Refreshing from Steam..." : "Loading achievements...";
+
+      try {
+        const url = refresh
+          ? `/api/steam/achievements/{{ game[0] }}?refresh=1`
+          : `/api/steam/achievements/{{ game[0] }}`;
+
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if(!res.ok){
+          note.textContent = "";
+          errBox.style.display = "block";
+          errBox.textContent = data.error || "Could not load achievements.";
+          meta.textContent = "Achievements unavailable.";
+          btn.disabled = false;
+          return;
+        }
+
+        allAchievements = data.achievements || [];
+        const source = data.cached ? "Cached" : "Live";
+        const when = data.cached_at ? ageText(data.cached_at) : "";
+
+        lastBaseMeta = `${data.done} / ${data.total} unlocked • ${data.completion}% • ${source}${when ? " ("+when+")" : ""}`;
+        meta.textContent = lastBaseMeta;
+
+        setControlsEnabled(true);
+        setActiveTab("all");
+        searchInput.value = "";
+
+        renderAchievements();
+
+      } catch (e) {
+        note.textContent = "";
+        errBox.style.display = "block";
+        errBox.textContent = "Server/API error while loading achievements.";
+        meta.textContent = "Achievements unavailable.";
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    tabs.forEach(t => {
+      t.addEventListener("click", () => {
+        setActiveTab(t.dataset.filter);
+        renderAchievements();
+      });
+    });
+
+    searchInput.addEventListener("input", renderAchievements);
+
+    btn.addEventListener("click", () => loadAchievements(false));
+    refreshBtn.addEventListener("click", () => loadAchievements(true));
+  </script>
+<!-- TOAST NOTIFICATIONS -->
+<div id="toast-container"></div>
+
+<script>
+function showToast(message, type="success"){
+    const container = document.getElementById("toast-container");
+    const toast = document.createElement("div");
+    toast.className = "toast " + type;
+    toast.textContent = message;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateX(40px)";
+        setTimeout(() => toast.remove(), 400);
+    }, 3000);
+}
+
+// Check if URL has success parameter
+const urlParams = new URLSearchParams(window.location.search);
+if(urlParams.get("success")){
+    showToast(urlParams.get("success"));
+}
+</script>
+</body>
+</html>

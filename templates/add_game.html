@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% block title %}GameVault - Add Game{% endblock %}
+
+{% block head %}
+<style>
+  .gv-form-page{ max-width: 1100px; margin: 0 auto; padding: 10px 0 40px; }
+
+  .gv-form-card{
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.10);
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.18));
+    box-shadow: 0 22px 70px rgba(0,0,0,0.40);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .gv-form-card::before{
+    content:"";
+    position:absolute;
+    left: 0; right: 0; top: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255,59,59,0.75), transparent);
+    opacity: 0.8;
+    pointer-events:none;
+  }
+
+  .gv-form-head{
+    display:flex; align-items:flex-start; justify-content: space-between; gap: 14px;
+    padding: 18px 18px 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.18);
+  }
+
+  .gv-title{ margin: 0; font-size: 22px; letter-spacing: 0.3px; font-weight: 950; }
+  .gv-sub{ margin: 6px 0 0; color: var(--muted); font-weight: 650; line-height: 1.5; }
+
+  .gv-badge{
+    display:inline-flex;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-weight: 950;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+    color: rgba(255,255,255,0.92);
+    background: rgba(255,59,59,0.12);
+    border: 1px solid rgba(255,59,59,0.22);
+    box-shadow: 0 0 20px rgba(255,59,59,0.10);
+    white-space: nowrap;
+  }
+
+  .gv-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding: 16px 18px 18px;
+  }
+
+  .gv-panel{
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.18);
+    padding: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .gv-panel::after{
+    content:"";
+    position:absolute;
+    inset:-1px;
+    background: radial-gradient(650px 220px at 18% 12%, rgba(255,59,59,0.10), transparent 55%);
+    opacity: 0.9;
+    pointer-events:none;
+  }
+
+  .gv-panel h3{
+    position: relative;
+    margin: 0 0 10px;
+    font-size: 13px;
+    letter-spacing: 0.35px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.88);
+  }
+
+  .gv-field{
+    position: relative;
+    display: grid;
+    gap: 7px;
+    margin-top: 10px;
+  }
+
+  .gv-label{
+    position: relative;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: rgba(234,234,234,0.72);
+    font-weight: 900;
+  }
+
+  .gv-input{
+    width: 100%;
+    padding: 12px;
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 12px;
+    background: rgba(10,10,10,0.70);
+    color: var(--text);
+    transition: border-color .2s ease, box-shadow .2s ease, transform .12s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    position: relative;
+  }
+
+  .gv-input:focus{
+    outline: none;
+    border-color: rgba(255,59,59,0.35);
+    box-shadow: 0 0 0 3px rgba(255,59,59,0.14), 0 0 18px rgba(255,59,59,0.18);
+    transform: translateY(-1px);
+  }
+
+  .gv-row2{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .gv-actions{
+    display:flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 18px 18px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.18);
+  }
+
+  .gv-actions .left, .gv-actions .right{
+    display:flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items:center;
+  }
+
+  /* Make the primary action feel like the main CTA */
+  .gv-actions .right button{
+    padding: 12px 18px;
+    min-width: 140px;
+  }
+
+  @media (max-width: 900px){
+    .gv-grid{ grid-template-columns: 1fr; }
+    .gv-actions{ flex-direction: column; align-items: stretch; }
+    .gv-actions .left, .gv-actions .right{ justify-content: space-between; }
+    .gv-actions .right button{ width: 100%; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="gv-form-page">
+  <div class="gv-form-card">
+    <div class="gv-form-head">
+      <div>
+        <h1 class="gv-title">Add Game</h1>
+        <p class="gv-sub">
+          Manual entry. Completion % is derived from achievements (done/total).
+        </p>
+      </div>
+      <div class="gv-badge">Manual Entry</div>
+    </div>
+
+    <form method="POST">
+      <div class="gv-grid">
+        <section class="gv-panel">
+          <h3>Basics</h3>
+
+          <div class="gv-field">
+            <div class="gv-label">Game Name</div>
+            <input class="gv-input" type="text" name="name" placeholder="Eg. GTA V" required>
+          </div>
+
+          <div class="gv-field">
+            <div class="gv-label">Platform</div>
+            <input class="gv-input" type="text" name="platform" placeholder="Steam / Manual / Xbox" required>
+          </div>
+
+          <div class="gv-row2">
+            <div class="gv-field">
+              <div class="gv-label">Developer</div>
+              <input class="gv-input" type="text" name="developer" placeholder="Optional">
+            </div>
+
+            <div class="gv-field">
+              <div class="gv-label">Genre</div>
+              <input class="gv-input" type="text" name="genre" placeholder="Optional">
+            </div>
+          </div>
+
+          <div class="gv-field">
+            <div class="gv-label">Cover URL</div>
+            <input class="gv-input" type="text" name="cover_url" placeholder="Optional (image link)">
+          </div>
+        </section>
+
+        <section class="gv-panel">
+          <h3>Stats</h3>
+
+          <div class="gv-row2">
+            <div class="gv-field">
+              <div class="gv-label">Playtime (hrs)</div>
+              <input class="gv-input" type="number" step="0.1" name="playtime" placeholder="0.0">
+            </div>
+
+            <div class="gv-field">
+              <div class="gv-label">Estimated Hours</div>
+              <input class="gv-input" type="number" step="0.1" name="estimated_hours" placeholder="0.0">
+            </div>
+          </div>
+
+          <div class="gv-row2">
+            <div class="gv-field">
+              <div class="gv-label">Achievements Done</div>
+              <input class="gv-input" type="number" name="achievements_done" placeholder="0">
+            </div>
+
+            <div class="gv-field">
+              <div class="gv-label">Total Achievements</div>
+              <input class="gv-input" type="number" name="achievements_total" placeholder="0">
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="gv-actions">
+        <div class="left">
+          <a href="/library">
+            <button type="button" class="btn-ghost">← Back</button>
+          </a>
+        </div>
+
+        <div class="right">
+          <button type="submit" class="gv-btn-primary">Add Game</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

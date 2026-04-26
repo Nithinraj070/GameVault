@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}GameVault{% endblock %}</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=14">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ui.css') }}?v=2">
+  {% block head %}{% endblock %}
+</head>
+
+<body>
+  <div id="scroll-bar"></div>
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="brand">
+        <span class="brand-mark"></span>
+        <span class="brand-name">GameVault</span>
+      </div>
+
+      {% if username %}
+        <div class="welcome-text">Welcome, <span class="welcome-user">{{ username }}</span></div>
+      {% endif %}
+    </div>
+
+    <nav class="topbar-right">
+      <a class="nav-link" href="/library">Library</a>
+      <a class="nav-link" href="/add-game">Add Game</a>
+      <a class="nav-link" href="/stats">Stats</a>
+      <a class="nav-link" href="/achievements">Achievements</a>
+      <a class="nav-link nav-danger" href="/logout">Logout</a>
+    </nav>
+  </header>
+
+  <main class="page">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="toast-container">
+          {% for category, message in messages %}
+            <div class="toast {{ category }}">
+              {{ message }}
+           </div>
+          {% endfor %}
+        </div>
+     {% endif %}
+    {% endwith %}
+
+  {% block content %}{% endblock %}
+  </main>
+
+  {% block scripts %}{% endblock %}
+<script>
+  setTimeout(() => {
+    document.querySelectorAll(".toast").forEach(t => {
+      t.style.opacity = "0";
+      t.style.transform = "translateX(40px)";
+    });
+  }, 3000);
+</script>
+<script>
+window.addEventListener("scroll", ()=>{
+  const height = document.body.scrollHeight - window.innerHeight;
+  const scrolled = (window.scrollY / height) * 100;
+  document.getElementById("scroll-bar").style.width = scrolled + "%";
+});
+</script>
+</body>
+</html>

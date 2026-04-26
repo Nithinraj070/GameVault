@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}GameVault - Connect Steam{% endblock %}
+
+{% block content %}
+  <div style="max-width: 700px; margin: 0 auto; padding-top: 20px;">
+    <div class="login-card" style="width: 100%; text-align: left;">
+      <h2 style="margin-top:0;">Connect Steam</h2>
+
+      <p style="color: var(--muted); margin-top: 8px;">
+        Paste your <strong>SteamID64</strong>. (Your profile must be public later for import.)
+      </p>
+
+      {% if saved_steamid %}
+        <p style="margin: 10px 0; color: rgba(255,255,255,0.9);">
+          Connected SteamID64: <strong>{{ saved_steamid }}</strong>
+        </p>
+      {% endif %}
+
+      {% if msg %}
+        <p style="margin: 10px 0; color: var(--primary); font-weight: 900;">
+          {{ msg }}
+        </p>
+      {% endif %}
+
+      <form method="POST">
+        <input type="text" name="steam_id" placeholder="SteamID64 (numbers only)" required>
+        <button type="submit">Save SteamID</button>
+      </form>
+
+      <div style="margin-top: 14px; display:flex; gap:10px; flex-wrap: wrap;">
+        <a href="/import/steam"><button type="button">Go to Import (next step)</button></a>
+        <a href="/library"><button type="button">Back to Library</button></a>
+      </div>
+
+      <p style="color: var(--muted); margin-top: 14px; font-size: 13px;">
+        Tip: You can find your SteamID64 using steamid.io (copy the SteamID64).
+      </p>
+    </div>
+  </div>
+{% endblock %}

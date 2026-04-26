@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Achievement Dashboard - GameVault{% endblock %}
+
+{% block content %}
+
+<div class="page">
+
+  <h1 style="margin-bottom:20px;">Achievement Dashboard</h1>
+
+  <!-- Overall Summary -->
+  <div class="panel">
+    <h3>Overall Progress</h3>
+    <p style="font-size:18px; font-weight:900;">
+      {{ total_done }} / {{ total_total }} achievements
+    </p>
+    <div class="sleep-progress" style="--p: {{ overall_percent }};">
+      <div class="fill"></div>
+    </div>
+    <p style="margin-top:10px;">{{ overall_percent }}% complete</p>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:30px;">
+
+    <!-- Top Completed -->
+    <div class="panel">
+      <h3>Top Completed Games</h3>
+      {% for g in top_completed %}
+        <div class="row">
+          <div>{{ g[0] }}</div>
+          <div>{{ g[1] }}%</div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Least Completed -->
+    <div class="panel">
+      <h3>Least Completed Games</h3>
+      {% for g in least_completed %}
+        <div class="row">
+          <div>{{ g[0] }}</div>
+          <div>{{ g[1] }}%</div>
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

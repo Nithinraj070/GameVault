@@ -1,21 +1,84 @@
 :root {
-    --bg: #0a0a0a;
+    --bg: #070707;
     --card: #111111;
+    --card-2: #0f0f0f;
+
     --primary: #ff3b3b;
     --primary-hover: #ff1f1f;
     --glow: rgba(255, 59, 59, 0.35);
-    --text: #e5e5e5;
+
+    --text: #eaeaea;
+    --muted: rgba(234, 234, 234, 0.72);
+
+    --stroke: rgba(255,255,255,0.08);
+
+    --shadow-soft: 0 18px 60px rgba(0,0,0,0.55);
+    --shadow-card: 0 18px 50px rgba(0,0,0,0.40);
 }
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
 
 body {
     margin: 0;
     padding: 0;
-    background-color: var(--bg);
-    font-family: Arial, sans-serif;
     color: var(--text);
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+    /* keep background layers behind content */
+    position: relative;
+    isolation: isolate;
+
+    /* clean base */
+    background:
+      radial-gradient(1200px 800px at 15% 18%, rgba(255,59,59,0.10), transparent 65%),
+      radial-gradient(1200px 800px at 85% 28%, rgba(255,59,59,0.06), transparent 68%),
+      linear-gradient(180deg, #050505 0%, #070707 55%, #050505 100%);
+    background-attachment: fixed;
 }
 
-/* CENTERING */
+/* =========================
+   CYBER CIRCUIT BACKGROUND
+   ========================= */
+
+/* Circuit pattern layer (detailed SVG tile) */
+body::before{
+    content:"";
+    position: fixed;
+    inset: 0;
+    pointer-events:none;
+    z-index: -2;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='360' viewBox='0 0 360 360'%3E%3Cg fill='none' stroke='%23ff3b3b' stroke-opacity='0.22' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M20 40 H120 V90 H210 V140 H340'/%3E%3Cpath d='M40 330 V240 H110 V190 H200'/%3E%3Cpath d='M320 320 V250 H260 V210 H150 V170 H70'/%3E%3Cpath d='M180 20 V70 H260 V110 H300'/%3E%3Cpath d='M20 190 H90 V230 H150 V300 H220'/%3E%3Cpath d='M260 150 H310 V190 H340'/%3E%3Cpath d='M120 120 H70 V150 H30'/%3E%3Cpath d='M210 260 H280 V300 H340'/%3E%3C/g%3E%3Cg%3E%3Ccircle cx='120' cy='40' r='4' fill='%23ff3b3b' fill-opacity='0.28'/%3E%3Ccircle cx='210' cy='90' r='4' fill='%23ff3b3b' fill-opacity='0.28'/%3E%3Ccircle cx='110' cy='240' r='4' fill='%23ff3b3b' fill-opacity='0.28'/%3E%3Ccircle cx='260' cy='210' r='4' fill='%23ff3b3b' fill-opacity='0.28'/%3E%3Ccircle cx='150' cy='300' r='4' fill='%23ff3b3b' fill-opacity='0.28'/%3E%3Ccircle cx='300' cy='110' r='4' fill='%23ff3b3b' fill-opacity='0.28'/%3E%3C/g%3E%3Cg stroke='%23ffffff' stroke-opacity='0.06' stroke-width='1'%3E%3Cpath d='M0 120 H360'/%3E%3Cpath d='M0 240 H360'/%3E%3Cpath d='M120 0 V360'/%3E%3Cpath d='M240 0 V360'/%3E%3C/g%3E%3C/svg%3E");
+
+    background-repeat: repeat;
+    background-size: 520px 520px;
+    background-position: 0 0;
+
+    /* makes it pop without creating gray sheets */
+    mix-blend-mode: screen;
+    opacity: 0.55;
+}
+
+/* Subtle grain (no haze band) */
+body::after{
+    content:"";
+    position: fixed;
+    inset: 0;
+    pointer-events:none;
+    z-index: -1;
+
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+    background-size: 260px 260px;
+    opacity: 0.06;
+    mix-blend-mode: overlay;
+}
+
+/* =========================
+   AUTH (Login UI)
+   ========================= */
+
 .container {
     display: flex;
     justify-content: center;
@@ -23,13 +86,16 @@ body {
     height: 100vh;
 }
 
-/* CARD */
 .login-card {
-    background-color: var(--card);
+    background-color: rgba(17,17,17,0.72);
     padding: 35px;
     border-radius: 12px;
     width: 320px;
     text-align: center;
+
+    border: 1px solid var(--stroke);
+    backdrop-filter: blur(10px) saturate(130%);
+    -webkit-backdrop-filter: blur(10px) saturate(130%);
 
     box-shadow: 0 0 20px var(--glow);
     transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -40,54 +106,53 @@ body {
     box-shadow: 0 0 40px var(--glow);
 }
 
-/* TITLE */
 .login-card h1 {
     margin-bottom: 25px;
     letter-spacing: 1px;
 }
 
-/* INPUTS */
 .login-card input {
     width: 100%;
     padding: 12px;
     margin: 10px 0;
-    border: none;
-    border-radius: 6px;
-    background-color: #1a1a1a;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    background-color: rgba(10,10,10,0.75);
     color: var(--text);
-    transition: box-shadow 0.2s ease, transform 0.1s ease;
+    transition: box-shadow 0.2s ease, transform 0.1s ease, border-color 0.2s ease;
+    backdrop-filter: blur(10px);
 }
 
 .login-card input:focus {
     outline: none;
+    border-color: rgba(255, 59, 59, 0.35);
     box-shadow: 0 0 10px var(--primary);
-    transform: scale(1.02);
+    transform: scale(1.01);
 }
 
-/* BUTTON */
 .login-card button {
     width: 100%;
     padding: 12px;
     margin-top: 10px;
     background-color: var(--primary);
     border: none;
-    border-radius: 6px;
+    border-radius: 10px;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: 800;
     color: white;
-
-    transition: transform 0.1s ease, background-color 0.2s ease;
+    transition: transform 0.1s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 12px 35px rgba(255, 59, 59, 0.18);
 }
 
 .login-card button:hover {
     background-color: var(--primary-hover);
+    box-shadow: 0 14px 40px rgba(255, 59, 59, 0.26);
 }
 
 .login-card button:active {
-    transform: scale(0.97);
+    transform: scale(0.98);
 }
 
-/* TOGGLE TEXT */
 .login-card span {
     color: var(--primary);
     cursor: pointer;
@@ -97,10 +162,401 @@ body {
     text-decoration: underline;
 }
 
-/* ERROR MESSAGE */
 #error-msg {
     color: #ff4d4d;
     margin-bottom: 10px;
     font-size: 14px;
     min-height: 18px;
+}
+
+/* =========================
+   APP LAYOUT
+   ========================= */
+
+.page {
+    padding: 26px 40px 60px;
+}
+
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 40px;
+
+    background: rgba(10, 10, 10, 0.55);
+    border-bottom: 1px solid var(--stroke);
+    backdrop-filter: blur(12px) saturate(130%);
+    -webkit-backdrop-filter: blur(12px) saturate(130%);
+}
+
+.topbar-left {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+}
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-mark {
+    width: 12px;
+    height: 12px;
+    border-radius: 4px;
+    background: var(--primary);
+    box-shadow: 0 0 18px var(--glow);
+}
+
+.brand-name {
+    font-weight: 900;
+    letter-spacing: 0.5px;
+}
+
+.welcome-text {
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.welcome-user {
+    color: var(--text);
+    font-weight: 900;
+}
+
+.topbar-right {
+    display: flex;
+    gap: 18px;
+}
+
+.nav-link {
+    color: rgba(234,234,234,0.85);
+    text-decoration: none;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nav-link:hover {
+    color: white;
+    background: rgba(255,255,255,0.04);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset;
+}
+
+.nav-danger:hover {
+    color: white;
+    background: rgba(255, 59, 59, 0.10);
+    box-shadow: 0 0 0 1px rgba(255, 59, 59, 0.22) inset, 0 0 18px rgba(255,59,59,0.10);
+}
+
+/* =========================
+   LIBRARY GRID
+   ========================= */
+
+.library-header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 6px 0 18px;
+}
+.library-header > div:last-child {
+    display: flex;
+    gap: 12px;
+}
+
+.library-title {
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: 0.4px;
+}
+
+.library-sub {
+    margin: 6px 0 0;
+    color: var(--muted);
+}
+
+.library-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 22px;
+}
+
+.game-card {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+
+    background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.07);
+
+    cursor: pointer;
+    transform: translateY(0);
+    transition: transform 0.22s ease, border-color 0.22s ease;
+}
+
+.game-card::after {
+    content: "";
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: -18px;
+    height: 36px;
+    background: radial-gradient(closest-side, rgba(255, 59, 59, 0.40), transparent 70%);
+    filter: blur(10px);
+    opacity: 0;
+    transition: opacity 0.22s ease;
+    pointer-events: none;
+}
+
+.game-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(255, 59, 59, 0.20);
+}
+
+.game-card:hover::after {
+    opacity: 1;
+}
+
+.game-cover {
+    aspect-ratio: 3 / 4;
+    background: radial-gradient(500px 240px at 50% 20%, rgba(255,59,59,0.18), transparent 55%),
+                linear-gradient(180deg, #0b0b0b, #070707);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    overflow: hidden;
+}
+
+.game-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transform: scale(1.01);
+    opacity: 0.95;
+}
+
+.game-meta {
+    padding: 14px 14px 16px;
+    background: rgba(0,0,0,0.25);
+}
+
+.game-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 900;
+    letter-spacing: 0.2px;
+}
+
+.game-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+    color: var(--muted);
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.sleep-progress {
+    --p: 0;
+    margin-top: 12px;
+    height: 10px;
+    border-radius: 999px;
+    position: relative;
+    overflow: hidden;
+
+    background:
+      repeating-linear-gradient(
+        90deg,
+        rgba(255,255,255,0.10) 0px,
+        rgba(255,255,255,0.10) 10px,
+        rgba(255,255,255,0.03) 10px,
+        rgba(255,255,255,0.03) 16px
+      );
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.06) inset;
+}
+
+.sleep-progress .fill {
+    width: calc(var(--p) * 1%);
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(255,59,59,0.35), rgba(255,59,59,0.95));
+    box-shadow: 0 0 18px rgba(255,59,59,0.32);
+}
+
+.completion-text {
+    margin: 10px 0 0;
+    color: rgba(255,255,255,0.88);
+    font-weight: 800;
+    font-size: 13px;
+}
+
+.empty {
+    margin-top: 70px;
+    text-align: center;
+    color: var(--muted);
+}
+
+.empty h2 {
+    margin: 0 0 10px;
+    color: rgba(255,255,255,0.88);
+}
+/* =========================
+   LIBRARY SEARCH
+   ========================= */
+
+.library-controls {
+    margin: 20px 0 30px;
+}
+
+#lib-search {
+    width: 280px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(10,10,10,0.7);
+    color: white;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#lib-search:focus {
+    outline: none;
+    border-color: rgba(255, 59, 59, 0.4);
+    box-shadow: 0 0 10px rgba(255, 59, 59, 0.4);
+}
+.detail-actions{
+    margin-top: 30px;
+    display: flex;
+    gap: 16px;
+}
+/* =========================
+   DANGER BUTTON
+   ========================= */
+
+.gv-btn-danger{
+  background: linear-gradient(180deg, #8b0000, #5a0000);
+  border: 1px solid rgba(255,0,0,0.4);
+  color: white;
+  font-weight: 900;
+  padding: 11px 16px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gv-btn-danger:hover{
+  background: linear-gradient(180deg, #a00000, #700000);
+  box-shadow: 0 0 18px rgba(255,0,0,0.3);
+}
+/* =========================
+   TOAST NOTIFICATIONS
+   ========================= */
+
+#toast-container{
+    position: fixed;
+    top: 100px;              /* distance from top */
+    right: 30px;             /* right side */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 9999;
+}
+
+.toast{
+    min-width: 260px;
+    max-width: 360px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-weight: 800;
+    backdrop-filter: blur(10px);
+    animation: slideIn 0.4s ease;
+}
+
+.toast.success{
+    background: linear-gradient(135deg, rgba(0,150,60,0.25), rgba(0,80,40,0.6));
+    border: 1px solid rgba(0,255,120,0.5);
+    color: #7CFFB2;
+}
+
+@keyframes slideIn{
+    from { transform: translateX(40px); opacity:0; }
+    to { transform: translateX(0); opacity:1; }
+}
+.platform-badge{
+    font-size:10px;
+    padding:4px 8px;
+    border-radius:999px;
+    margin-left:8px;
+    background:rgba(255,59,59,0.15);
+    border:1px solid rgba(255,59,59,0.3);
+}
+.stars{
+    display:flex;
+    gap:8px;
+}
+
+.star-btn{
+    background:none;
+    border:none;
+    font-size:28px;
+    cursor:pointer;
+    color:rgba(255,255,255,0.25);
+    transition:all 0.2s ease;
+}
+
+.star-btn:hover{
+    transform:scale(1.2);
+    color:#ff3b3b;
+}
+
+.star-btn.active{
+    color:#ff3b3b;
+}
+.card-rating{
+    margin-top:8px;
+    font-size:14px;
+}
+
+.mini-star{
+    color:rgba(255,255,255,0.2);
+}
+
+.mini-star.active{
+    color:#ff3b3b;
+}
+.platform-filter{
+    padding:10px 12px;
+    border-radius:10px;
+    background:rgba(20,20,20,0.8);
+    border:1px solid rgba(255,255,255,0.1);
+    color:white;
+    font-weight:600;
+}
+.rating-section .star-btn.active{
+    color:#ff3b3b !important;
+}
+.page {
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn{
+    from { opacity:0; transform: translateY(8px); }
+    to { opacity:1; transform: translateY(0); }
+}
+#scroll-bar{
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 0%;
+    background: #ff3b3b;
+    z-index: 99999;
 }

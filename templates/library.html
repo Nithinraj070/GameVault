@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}GameVault - Library{% endblock %}
+
+{% block content %}
+  <div id="toast-container"></div>
+
+  <div class="library-header">
+    <div>
+      <h1 class="library-title">Your Library</h1>
+      <p class="library-sub">Search and manage your vault.</p>
+    </div>
+    <div>
+      <a href="/connect/steam">
+        <button class="btn-ghost">Connect Steam</button>
+      </a>
+      <a href="/import/steam">
+        <button class="gv-btn-primary">Import Steam</button>
+      </a>
+    </div>
+  </div>
+
+  <!-- 🔎 SEARCH + SORT -->
+  <div class="library-controls">
+
+  <input type="text" id="lib-search" placeholder="Search games...">
+
+  <select id="platform-filter" class="platform-filter">
+    <option value="all">All Platforms</option>
+    <option value="Steam">Steam</option>
+    <option value="Manual">Manual</option>
+    <option value="Xbox">Xbox</option>
+  </select>
+
+  <div class="sort-buttons">
+    <button class="sort-btn active" data-sort="name">A–Z</button>
+    <button class="sort-btn" data-sort="playtime">Playtime</button>
+    <button class="sort-btn" data-sort="completion">Completion</button>
+  </div>
+
+</div>
+
+  {% if games %}
+    <section class="library-grid" id="library-grid">
+      {% for game in games %}
+        <article class="game-card"
+                 data-title="{{ game[1]|lower }}"
+                 data-playtime="{{ game[2] }}"
+                 data-completion="{{ game[3] }}"
+                 data-platform="{{ game[5] }}"
+                 onclick="window.location.href='/game/{{ game[0] }}'">
+
+          <div class="game-cover">
+            <img src="{{ game[4] if game[4] else 'https://via.placeholder.com/600x800?text=No+Cover' }}" alt="{{ game[1] }}">
+          </div>
+
+          <div class="game-meta">
+            <h3 class="game-title">
+              {{ game[1] }}
+              <span class="platform-badge">{{ game[5] }}</span>
+            </h3>
+
+            <div class="game-row">
+              <span>Playtime</span>
+              <span>{{ game[2] }} hrs</span>
+            </div>
+
+            <div class="sleep-progress" style="--p: {{ game[3] }};">
+              <div class="fill"></div>
+            </div>
+
+            <p class="completion-text">{{ game[3] }}% complete</p>
+
+            <!-- ✅ Rating Stars (CORRECT POSITION) -->
+            <div class="card-rating">
+              {% for i in range(1,6) %}
+                <span class="mini-star {% if game[6]|int >= i %}active{% endif %}">★</span>
+              {% endfor %}
+            </div>
+
+          </div>
+
+        </article>
+      {% endfor %}
+    </section>
+  {% else %}
+    <div class="empty">
+      <h2>Your library is empty.</h2>
+      <p>Go to <strong>Add Game</strong> to start building your vault.</p>
+    </div>
+  {% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const searchInput = document.getElementById("lib-search");
+  const platformFilter = document.getElementById("platform-filter");
+  const cards = Array.from(document.querySelectorAll(".game-card"));
+  const grid = document.getElementById("library-grid");
+  const sortButtons = document.querySelectorAll(".sort-btn");
+
+  function applyFilters(){
+    const query = searchInput.value.toLowerCase();
+    const selectedPlatform = platformFilter.value;
+
+    cards.forEach(card => {
+        const title = card.dataset.title;
+        const platform = card.dataset.platform;
+
+        const matchesSearch = title.includes(query);
+        const matchesPlatform = selectedPlatform === "all" || platform === selectedPlatform;
+
+        if(matchesSearch && matchesPlatform){
+            card.style.display = "block";
+        } else {
+            card.style.display = "none";
+        }
+    });
+  }
+
+  searchInput.addEventListener("input", applyFilters);
+  platformFilter.addEventListener("change", applyFilters);
+
+  // 🔀 SORTING
+  sortButtons.forEach(btn => {
+    btn.addEventListener("click", function() {
+
+      sortButtons.forEach(b => b.classList.remove("active"));
+      this.classList.add("active");
+
+      const type = this.getAttribute("data-sort");
+      let sortedCards = [...cards];
+
+      if (type === "name") {
+        sortedCards.sort((a, b) =>
+          a.dataset.title.localeCompare(b.dataset.title)
+        );
+      }
+
+      if (type === "playtime") {
+        sortedCards.sort((a, b) =>
+          parseFloat(b.dataset.playtime) - parseFloat(a.dataset.playtime)
+        );
+      }
+
+      if (type === "completion") {
+        sortedCards.sort((a, b) =>
+          parseFloat(b.dataset.completion) - parseFloat(a.dataset.completion)
+        );
+      }
+
+      sortedCards.forEach(card => grid.appendChild(card));
+    });
+  });
+
+  // ✅ Toast
+  function showToast(message, type="success"){
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = "toast " + type;
+      toast.textContent = message;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+          toast.style.opacity = "0";
+          toast.style.transform = "translateX(40px)";
+          setTimeout(() => toast.remove(), 400);
+      }, 3000);
+  }
+
+  const urlParams = new URLSearchParams(window.location.search);
+  if(urlParams.get("success")){
+      showToast(urlParams.get("success"));
+  }
+</script>
+<script>
+cards.forEach(card=>{
+  card.addEventListener("mousemove", e=>{
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const rotateX = (y / rect.height - 0.5) * 8;
+    const rotateY = (x / rect.width - 0.5) * -8;
+
+    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
+  });
+
+  card.addEventListener("mouseleave", ()=>{
+    card.style.transform = "translateY(0)";
+  });
+});
+</script>
+{% endblock %}

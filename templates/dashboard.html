@@ -1,17 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>GameVault - Dashboard</title>
-
+    <title>GameVault Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
     <div class="container">
         <div class="login-card">
-            <h1>Welcome to GameVault 🎮</h1>
+            <h1>Welcome, {{ username }} 🎮</h1>
             <p>Your library will appear here</p>
+
+            <br>
+            <a href="/logout">
+                <button>Logout</button>
+            </a>
         </div>
     </div>
 

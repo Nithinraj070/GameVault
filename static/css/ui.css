@@ -1,0 +1,181 @@
+/* GameVault UI Kit — Futuristic Buttons/Chips (strong primary vs ghost) */
+
+:root{
+  --ui-border: rgba(255,255,255,0.14);
+  --ui-bg: rgba(255,255,255,0.05);
+  --ui-bg-hover: rgba(255,255,255,0.08);
+
+  --ui-red: rgba(255,59,59,1);
+  --ui-red-soft: rgba(255,59,59,0.22);
+  --ui-red-border: rgba(255,59,59,0.55);
+  --ui-text: rgba(255,255,255,0.92);
+}
+
+/* Base button */
+button,
+.gv-btn{
+  appearance:none;
+  -webkit-appearance:none;
+  position: relative;
+  isolation: isolate;
+
+  padding: 11px 16px;
+  border-radius: 14px;
+
+  border: 1px solid var(--ui-border);
+  background: var(--ui-bg);
+  color: var(--ui-text);
+
+  font-weight: 950;
+  letter-spacing: 0.3px;
+
+  cursor: pointer;
+
+  backdrop-filter: blur(14px) saturate(170%);
+  -webkit-backdrop-filter: blur(14px) saturate(170%);
+
+  box-shadow: 0 18px 55px rgba(0,0,0,0.40);
+  transition: transform .12s ease, box-shadow .2s ease, border-color .2s ease, background-color .2s ease, filter .2s ease;
+}
+
+/* sheen */
+button::before,
+.gv-btn::before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  border-radius: inherit;
+  background: linear-gradient(120deg,
+    transparent 0%,
+    rgba(255,255,255,0.12) 18%,
+    transparent 38%,
+    transparent 62%,
+    rgba(255,59,59,0.10) 78%,
+    transparent 100%);
+  opacity: 0.55;
+  pointer-events:none;
+}
+
+/* underglow (default OFF; enabled on hover/primary) */
+button::after,
+.gv-btn::after{
+  content:"";
+  position:absolute;
+  left: 14px;
+  right: 14px;
+  bottom: -18px;
+  height: 34px;
+  border-radius: 999px;
+  background: radial-gradient(closest-side, rgba(255,59,59,0.35), transparent 72%);
+  filter: blur(12px);
+  opacity: 0;
+  transition: opacity .2s ease;
+  pointer-events:none;
+}
+
+button:hover,
+.gv-btn:hover{
+  transform: translateY(-2px);
+  background: var(--ui-bg-hover);
+  border-color: rgba(255,59,59,0.28);
+  box-shadow: 0 22px 75px rgba(0,0,0,0.55);
+}
+button:hover::after,
+.gv-btn:hover::after{
+  opacity: 1;
+}
+
+button:active,
+.gv-btn:active{
+  transform: translateY(0) scale(0.98);
+}
+
+button:focus-visible,
+.gv-btn:focus-visible{
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(255,59,59,0.16),
+    0 0 22px rgba(255,59,59,0.18),
+    0 22px 75px rgba(0,0,0,0.55);
+}
+
+/* =========================
+   PRIMARY (very distinct)
+   ========================= */
+.gv-btn-primary,
+button.gv-btn-primary,
+#ach_load_btn{
+  background: linear-gradient(180deg, rgba(255,59,59,0.95), rgba(255,59,59,0.55)) !important;
+  border-color: var(--ui-red-border) !important;
+  color: white !important;
+  box-shadow:
+    0 18px 55px rgba(255,59,59,0.18),
+    0 22px 75px rgba(0,0,0,0.55) !important;
+}
+
+.gv-btn-primary::before,
+button.gv-btn-primary::before,
+#ach_load_btn::before{
+  opacity: 0.75;
+}
+
+.gv-btn-primary::after,
+button.gv-btn-primary::after,
+#ach_load_btn::after{
+  opacity: 0.65; /* visible even without hover */
+}
+
+.gv-btn-primary:hover,
+button.gv-btn-primary:hover,
+#ach_load_btn:hover{
+  filter: drop-shadow(0 0 16px rgba(255,59,59,0.22));
+  border-color: rgba(255,59,59,0.75) !important;
+}
+
+/* =========================
+   GHOST / BACK (calm)
+   ========================= */
+.btn-ghost,
+.gv-btn-ghost{
+  background: rgba(255,255,255,0.03) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.35) !important;
+}
+
+/* Ghost should NOT look like primary on hover */
+.btn-ghost:hover,
+.gv-btn-ghost:hover{
+  border-color: rgba(255,255,255,0.18) !important;
+  filter: none !important;
+}
+.btn-ghost::after,
+.gv-btn-ghost::after{
+  opacity: 0 !important; /* remove red underglow */
+}
+
+/* Disabled */
+button:disabled,
+.gv-btn:disabled{
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform:none;
+  box-shadow:none;
+}
+button:disabled::after,
+.gv-btn:disabled::after{
+  opacity: 0;
+}
+
+/* Achievement tabs (chips) */
+.ach-tab{
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04) !important;
+  border-color: rgba(255,255,255,0.14) !important;
+  box-shadow: 0 14px 35px rgba(0,0,0,0.30) !important;
+}
+
+.ach-tab.active{
+  background: rgba(255,59,59,0.14) !important;
+  border-color: rgba(255,59,59,0.35) !important;
+  box-shadow: 0 0 22px rgba(255,59,59,0.12), 0 18px 55px rgba(0,0,0,0.45) !important;
+}
