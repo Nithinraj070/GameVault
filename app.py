@@ -11,7 +11,7 @@ import time
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY")
-
+init_db() 
 # ALWAYS use the same DB file (fixes “multiple database.db” issue)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")
@@ -1026,5 +1026,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    init_db()
-    app.run(debug=os.environ.get("FLASK_DEBUG") == "1")
+    app.run(host="0.0.0.0", port=5000)
