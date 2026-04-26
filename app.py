@@ -259,7 +259,7 @@ def init_db():
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id INTEGER PRIMARY KEY ,
         username TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL,
         is_admin INTEGER DEFAULT 0
@@ -268,7 +268,7 @@ def init_db():
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS games (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id INTEGER PRIMARY KEY,
         user_id INTEGER NOT NULL,
 
         name TEXT NOT NULL,
@@ -855,7 +855,7 @@ def import_steam():
                                     date_added, last_played,
                                     external_game_id
                                 )
-                                VALUES (?, ?, 'Steam', ?, ?, datetime('now'), datetime('now'), ?)
+                                VALUES (?, ?, 'Steam', ?, ?, NOW(), NOW(), ?)
                                 ON CONFLICT(user_id, platform, external_game_id)
                                 DO UPDATE SET
                                     playtime = excluded.playtime,
