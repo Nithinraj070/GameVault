@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
-import sqlite3
+import psycopg2
+from urllib.parse import urlparse
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from dotenv import load_dotenv
@@ -25,14 +26,36 @@ ACH_CACHE_SECONDS = 6 * 60 * 60  # 6 hours
 @app.context_processor
 def inject_user():
     return {"username": session.get("user")}
-
+@app.context_processor
+def inject_admin():
+    is_admin = False
+    if "user_id" in session:
+        with db_connect() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT is_admin FROM users WHERE id = %s", (session["user_id"],))
+            result = cursor.fetchone()
+            if result and result[0] == 1:
+                is_admin = True
+    return {"is_admin": is_admin}
 
 # ==============================
 # DB HELPERS
 # ==============================
 def db_connect():
-    return sqlite3.connect(DB_PATH)
+    database_url = os.environ.get("DATABASE_URL")
 
+    if database_url:
+        url = urlparse(database_url)
+        conn = psycopg2.connect(
+            database=url.path[1:],
+            user=url.username,
+            password=url.password,
+            host=url.hostname,
+            port=url.port
+        )
+        return conn
+    else:
+        return sqlite3.connect(DB_PATH)
 
 def column_exists(cursor, table_name, column_name):
     cursor.execute(f"PRAGMA table_info({table_name})")
@@ -1037,11 +1060,29 @@ def admin_dashboard():
         if not result or result[0] != 1:
             return redirect(url_for("library"))
 
+        # Total users
+        cursor.execute("SELECT COUNT(*) FROM users")
+        total_users = cursor.fetchone()[0]
+
+        # Total games
+        cursor.execute("SELECT COUNT(*) FROM games")
+        total_games = cursor.fetchone()[0]
+
+        # Total Steam-connected users
+        cursor.execute("SELECT COUNT(*) FROM user_platforms WHERE platform = 'Steam'")
+        steam_connected = cursor.fetchone()[0]
+
         # Get all users
-        cursor.execute("SELECT id, username FROM users")
+        cursor.execute("SELECT id, username, is_admin FROM users")
         users = cursor.fetchall()
 
-        return render_template("admin_dashboard.html", users=users)
+        return render_template(
+            "admin_dashboard.html",
+            users=users,
+            total_users=total_users,
+            total_games=total_games,
+            steam_connected=steam_connected
+        )
 @app.route("/delete-user/<int:user_id>", methods=["POST"])
 def delete_user(user_id):
     if "user_id" not in session:
@@ -1061,17 +1102,7 @@ def delete_user(user_id):
         conn.commit()
 
     return redirect(url_for("admin_dashboard"))
-@app.route("/make-me-admin")
-def make_me_admin():
-    if "user_id" not in session:
-        return redirect(url_for("home"))
 
-    with db_connect() as conn:
-        cursor = conn.cursor()
-        cursor.execute("UPDATE users SET is_admin = 1 WHERE id = ?", (session["user_id"],))
-        conn.commit()
-
-    return "You are now admin"
 @app.route("/logout")
 def logout():
     session.clear()
