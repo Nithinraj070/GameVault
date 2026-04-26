@@ -11,7 +11,7 @@ import time
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY")
-init_db() 
+
 # ALWAYS use the same DB file (fixes “multiple database.db” issue)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")
@@ -306,7 +306,7 @@ def init_db():
 
     conn.commit()
     conn.close()
-
+init_db()
 
 # ==============================
 # DEBUG endpoint (to prove which DB + file Flask uses)
