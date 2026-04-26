@@ -239,6 +239,7 @@ def init_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL
+        is_admin INTEGER DEFAULT 0
     )
     """)
 
@@ -270,7 +271,8 @@ def init_db():
     """)
     if not column_exists(cursor, "games", "rating"):
         cursor.execute("ALTER TABLE games ADD COLUMN rating INTEGER DEFAULT 0")
-
+    if not column_exists(cursor, "users", "is_admin"):
+        cursor.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS user_platforms (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -365,6 +367,10 @@ def signup():
                 "INSERT INTO users (username, password) VALUES (?, ?)",
                 (username, hashed_password)
             )
+            cursor.execute("SELECT COUNT(*) FROM users")
+            count = cursor.fetchone()[0]
+            if count == 1:
+                cursor.execute("UPDATE users SET is_admin = 1 WHERE username = ?", (username,))
             conn.commit()
 
         return jsonify({"message": "User created successfully"}), 200
@@ -1018,7 +1024,45 @@ def achievements_dashboard():
         top_completed=top_completed,
         least_completed=least_completed
     )
+@app.route("/admin")
+def admin_dashboard():
+    if "user_id" not in session:
+        return redirect(url_for("home"))
 
+    with db_connect() as conn:
+        cursor = conn.cursor()
+
+        # Check if current user is admin
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        result = cursor.fetchone()
+
+        if not result or result[0] != 1:
+            return redirect(url_for("library"))
+
+        # Get all users
+        cursor.execute("SELECT id, username FROM users")
+        users = cursor.fetchall()
+
+        return render_template("admin_dashboard.html", users=users)
+@app.route("/delete-user/<int:user_id>", methods=["POST"])
+def delete_user(user_id):
+    if "user_id" not in session:
+        return redirect(url_for("home"))
+
+    with db_connect() as conn:
+        cursor = conn.cursor()
+
+        # Verify admin
+        cursor.execute("SELECT is_admin FROM users WHERE id = ?", (session["user_id"],))
+        result = cursor.fetchone()
+
+        if not result or result[0] != 1:
+            return redirect(url_for("library"))
+
+        cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        conn.commit()
+
+    return redirect(url_for("admin_dashboard"))
 @app.route("/logout")
 def logout():
     session.clear()

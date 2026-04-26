@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+
+<h1 style="margin-bottom:20px;">Admin Dashboard</h1>
+
+<div class="panel">
+  <h3>All Users</h3>
+
+  {% for user in users %}
+    <div class="row">
+      <div>{{ user[1] }}</div>
+      <form method="POST" action="/delete-user/{{ user[0] }}">
+        <button class="gv-btn-danger" type="submit">Delete</button>
+      </form>
+    </div>
+  {% endfor %}
+
+</div>
+
+{% endblock %}
